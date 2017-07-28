@@ -4,7 +4,7 @@
 
 写自定义view，怎么能没有自己写的loading框了，今天给大家送上一个loading框，前期losing框是很简单的效果，三个状态：loading、success、error，不逼逼了，先上给糙一点的效果GIF，回头继续完善。
 
-![效果图](https://github.com/madreain/AndroidNotes/blob/master/images/loading.gif)
+![效果图](https://github.com/madreain/madreain.github.io/blob/master/images/loading.gif)
 
 糙一点的loading框效果看完了，接下来说一下实现过程，采用WindowManager将losing框的view置于显示view的上层，起初上来是loading转圈状态，根据加载返回的结构设置成功或者失败。
 
