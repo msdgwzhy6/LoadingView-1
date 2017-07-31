@@ -148,18 +148,18 @@ public class LoadingView extends View {
     private void initPaint() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.BLUE);
+        mPaint.setColor(mpaintColor);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(16);
+        mPaint.setStrokeWidth(mpaintStrokeWidth);
         mPaint.setStyle(Paint.Style.STROKE);
 
         textPaint = new Paint();
         textPaint.setAntiAlias(true);
-        textPaint.setColor(Color.BLUE);
+        textPaint.setColor(textPaintColor);
         textPaint.setStrokeCap(Paint.Cap.ROUND);
-        textPaint.setStrokeWidth(6);
+        textPaint.setStrokeWidth(textPaintStrokeWidth);
         textPaint.setStyle(Paint.Style.STROKE);
-        textPaint.setTextSize(60);
+        textPaint.setTextSize(textPaintTextSize);
 
         pos = new float[2];
         tan = new float[2];
