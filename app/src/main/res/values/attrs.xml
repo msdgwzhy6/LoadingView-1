@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LoadingView">
+        <attr name="backgroudColor" format="color"/>
+        <attr name="mpaintColor" format="color" />
+        <attr name="mpaintStrokeWidth" format="float" />
+        <attr name="textPaintColor" format="color" />
+        <attr name="textPaintStrokeWidth" format="float" />
+        <attr name="textPaintTextSize" format="float" />
+        <attr name="radius" format="float" />
+        <attr name="circleRadius" format="float" />
+        <attr name="roundCount" format="integer" />
+        <attr name="Type">
+            <enum name="ARC" value="0" />
+            <enum name="CIRCLE" value="1" />
+            <enum name="ROUND" value="2" />
+        </attr>
+    </declare-styleable>
+</resources>

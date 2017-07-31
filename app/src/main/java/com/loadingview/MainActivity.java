@@ -1,13 +1,12 @@
 package com.loadingview;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.LinearLayout;
 
 public class MainActivity extends AppCompatActivity {
-    private LinearLayout layout;
 
     LoadingView loadingRoundView;
     private Handler mSuccesHandler;
@@ -23,9 +22,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        layout = (LinearLayout) findViewById(R.id.layout);
         loadingRoundView = new LoadingView(this);
-        loadingRoundView.addPartentViewStartLoading(layout);
+        loadingRoundView.setType(LoadingView.Type.ROUND);
+        loadingRoundView.setBackgroudColor(Color.parseColor("#66000000"));
+        loadingRoundView.addPartentViewStartLoading(MainActivity.this);
 
         mErrorHandler = new Handler() {
             @Override

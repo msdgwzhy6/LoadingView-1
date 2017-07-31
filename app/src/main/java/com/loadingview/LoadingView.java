@@ -2,7 +2,9 @@ package com.loadingview;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,30 +15,35 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 
 /**
  * Created by wujun on 2017/7/31.
  *
  * @author madreain
- * @desc
+ * @desc loading框  目前支持三种状态及三种样式
  */
 
 public class LoadingView extends View {
     //屏幕的宽高
     int mwidth;
     int mheight;
+    int backgroudColor;
 
     //主
     Paint mPaint;
-    //
+    //属性
+    int mpaintColor;
+    float mpaintStrokeWidth;
+
     Path mPath;
-
-
-    Paint circlePaint;
+    //转圈的半径
     float radius = 100;
+    //画圆圈的半径
     float circleRadius = 16;
     //设置转圈的圆点数量
     private int roundCount = 10;
@@ -63,8 +70,11 @@ public class LoadingView extends View {
         ERROR,
     }
 
-    //成功失败
+    //成功失败的画笔
     Paint textPaint;
+    int textPaintColor;
+    float textPaintStrokeWidth;
+    float textPaintTextSize;
 
     //成功的动效
     ValueAnimator successvalueAnimator;
@@ -72,14 +82,14 @@ public class LoadingView extends View {
     ValueAnimator errorvalueAnimator;
 
 
-    private Type mcurrentType = Type.CIRCLE;
+    //loading的类型
+    private Type mcurrentType = Type.ROUND;
 
     //loading type
-    private enum Type {
+    public enum Type {
         ARC,//传统弧形转圈
         CIRCLE,//天女散花
         ROUND,//渐变的圆圈旋转
-
     }
 
     public LoadingView(Context context) {
@@ -92,13 +102,37 @@ public class LoadingView extends View {
 
     public LoadingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        initTypedArray(context, attrs);
         initPaint();
         initHandler();
         initListener();
     }
 
+    private void initTypedArray(Context context, AttributeSet attrs) {
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.LoadingView);
+        backgroudColor=typedArray.getColor(R.styleable.LoadingView_backgroudColor,Color.parseColor("#66000000"));
+        mpaintColor = typedArray.getColor(R.styleable.LoadingView_mpaintColor, Color.BLUE);
+        mpaintStrokeWidth = typedArray.getFloat(R.styleable.LoadingView_mpaintStrokeWidth, 16);
+        textPaintColor = typedArray.getColor(R.styleable.LoadingView_textPaintColor, Color.BLUE);
+        textPaintStrokeWidth = typedArray.getFloat(R.styleable.LoadingView_textPaintStrokeWidth, 6);
+        textPaintTextSize = typedArray.getFloat(R.styleable.LoadingView_textPaintTextSize, 60);
+        radius = typedArray.getFloat(R.styleable.LoadingView_radius, 100);
+        circleRadius = typedArray.getFloat(R.styleable.LoadingView_circleRadius, 16);
+        roundCount = typedArray.getInteger(R.styleable.LoadingView_roundCount, 10);
+        int type = typedArray.getInt(R.styleable.LoadingView_Type, 0);
+        if (type == 0) {
+            mcurrentType = Type.ARC;
+        } else if (type == 1) {
+            mcurrentType = Type.CIRCLE;
+        } else if (type == 2) {
+            mcurrentType = Type.ROUND;
+        }
+    }
+
+
     public LoadingView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initTypedArray(context, attrs);
         initPaint();
         initHandler();
         initListener();
@@ -118,12 +152,6 @@ public class LoadingView extends View {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(16);
         mPaint.setStyle(Paint.Style.STROKE);
-
-        circlePaint = new Paint();
-        circlePaint.setAntiAlias(true);
-        circlePaint.setColor(Color.BLUE);
-        circlePaint.setStrokeCap(Paint.Cap.ROUND);
-        circlePaint.setStrokeWidth(16);
 
         textPaint = new Paint();
         textPaint.setAntiAlias(true);
@@ -289,7 +317,7 @@ public class LoadingView extends View {
         //移到屏幕中间
         canvas.translate(mwidth / 2, mheight / 2);
         //都添加背景
-        canvas.drawColor(Color.parseColor("#33000000"));
+        canvas.drawColor(backgroudColor);
         drawLoading(canvas);
 
     }
@@ -303,6 +331,7 @@ public class LoadingView extends View {
                     mPath.addArc(loadingrectF, mAnimatorValue * 360, 240);
                     canvas.drawPath(mPath, mPaint);
                 } else if (mcurrentType == Type.CIRCLE) {
+                    mPaint.setStyle(Paint.Style.FILL);
                     mPath = new Path();
                     for (int i = 0; i < 10; i++) {
                         mPath.addCircle(mAnimatorValue * mwidth / 2 * (float) Math.cos(30 * i), mAnimatorValue * mwidth / 2 * (float) Math.sin(30 * i), 16, Path.Direction.CW);
@@ -311,8 +340,9 @@ public class LoadingView extends View {
                         mPath.addCircle(mAnimatorValue * mwidth / 5 * (float) Math.cos(30 * i), mAnimatorValue * mwidth / 5 * (float) Math.sin(30 * i), 16, Path.Direction.CW);
                         mPath.addCircle(mAnimatorValue * mwidth / 6 * (float) Math.cos(30 * i), mAnimatorValue * mwidth / 6 * (float) Math.sin(30 * i), 16, Path.Direction.CW);
                     }
-                    canvas.drawPath(mPath, circlePaint);
+                    canvas.drawPath(mPath, mPaint);
                 } else if (mcurrentType == Type.ROUND) {
+                    mPaint.setStyle(Paint.Style.FILL);
                     Path path = new Path();
                     path.addCircle(0, 0, radius, Path.Direction.CW);           // 添加一个圆形
                     PathMeasure pathMeasure = new PathMeasure(path, false);
@@ -324,8 +354,8 @@ public class LoadingView extends View {
                     for (int i = 0; i < roundCount; i++) {
                         //用path一次性画的，透明度不好设置
 //              mPath.addCircle((float) (Math.cos(angle + i*0.4) * 100), (float) (Math.sin(angle+ i*0.4) * 100), 16, Path.Direction.CW);
-                        circlePaint.setAlpha(onealpha * i);
-                        canvas.drawCircle((float) (Math.cos(angle + i * 0.4) * radius), (float) (Math.sin(angle + i * 0.4) * radius), circleRadius, circlePaint);
+                        mPaint.setAlpha(onealpha * i);
+                        canvas.drawCircle((float) (Math.cos(angle + i * 0.4) * radius), (float) (Math.sin(angle + i * 0.4) * radius), circleRadius, mPaint);
                     }
 //              canvas.drawPath(mPath, circlePaint);
                 }
@@ -353,24 +383,18 @@ public class LoadingView extends View {
 
 
     /**
-     * @param layout 添加在那个夫布局里面
-     *               然后执行loading动画
+     * 添加到activity的上层并执行动画
+     * @param activity
+     *
      */
-    public void addPartentViewStartLoading(ViewGroup layout) {
+    public void addPartentViewStartLoading(Activity activity) {
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layout.addView(this, layoutParams);
+        //Activity中View布局的最祖宗布局,是一个FrameLayout,叫做DecorView,通过getWindow().getDecorView()可以获取到
+        FrameLayout view = (FrameLayout) activity.getWindow().getDecorView();
+        view.addView(this,layoutParams);
         startLoading();
     }
 
-    /**
-     * 支持范型
-     *
-     * @param layout 添加在那个夫布局里面
-     */
-    public void addView(ViewGroup layout) {
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layout.addView(this, layoutParams);
-    }
 
     /**
      * 设置loading开始
@@ -409,6 +433,95 @@ public class LoadingView extends View {
         errorvalueAnimator.start();
     }
 
+    /**
+     * 整个事件的消费来保证loading状态不可操作
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
+    }
+
+    /**
+     * 设置loading的背景颜色
+     * @param backgroudColor
+     */
+    public void setBackgroudColor(int backgroudColor) {
+        this.backgroudColor = backgroudColor;
+    }
+
+    /**
+     *
+     * @param mpaintColor
+     */
+    public void setMpaintColor(int mpaintColor) {
+        this.mpaintColor = mpaintColor;
+    }
+
+    /**
+     *
+     * @param mpaintStrokeWidth
+     */
+    public void setMpaintStrokeWidth(float mpaintStrokeWidth) {
+        this.mpaintStrokeWidth = mpaintStrokeWidth;
+    }
+
+    /**
+     *
+     * @param textPaintColor
+     */
+    public void setTextPaintColor(int textPaintColor) {
+        this.textPaintColor = textPaintColor;
+    }
+
+    /**
+     *
+     * @param textPaintStrokeWidth
+     */
+    public void setTextPaintStrokeWidth(float textPaintStrokeWidth) {
+        this.textPaintStrokeWidth = textPaintStrokeWidth;
+    }
+
+    /**
+     *
+     * @param textPaintTextSize
+     */
+    public void setTextPaintTextSize(float textPaintTextSize) {
+        this.textPaintTextSize = textPaintTextSize;
+    }
+
+    /**
+     *
+     * @param radius
+     */
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+
+    /**
+     *
+     * @param circleRadius
+     */
+    public void setCircleRadius(float circleRadius) {
+        this.circleRadius = circleRadius;
+    }
+
+    /**
+     *
+     * @param roundCount
+     */
+    public void setRoundCount(int roundCount) {
+        this.roundCount = roundCount;
+    }
+
+    /**
+     *
+     * @param mcurrentType
+     */
+    public void setType(Type mcurrentType){
+        this.mcurrentType=mcurrentType;
+    }
 
 }
 
