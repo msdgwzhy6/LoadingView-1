@@ -4,19 +4,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
+    private LinearLayout layout;
 
-    private LoadingView loadingview;
+    LoadingView loadingRoundView;
     private Handler mSuccesHandler;
     private Handler mErrorHandler;
     int succes = 0;
     int error = 0;
-//    private Button btn1;
-//    private Button btn2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +23,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
-        loadingview = new LoadingView(this);
+        layout = (LinearLayout) findViewById(R.id.layout);
+        loadingRoundView = new LoadingView(this);
+        loadingRoundView.addPartentViewStartLoading(layout);
 
         mErrorHandler = new Handler() {
             @Override
@@ -35,17 +34,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (error <= 50) {
                     if (error == 0) {
 
-                        loadingview.addViewStartLoading(loadingview, MainActivity.this);
+                        loadingRoundView.startLoading();
 
                     }
                     error += 1;
                     mErrorHandler.sendEmptyMessageDelayed(0, 100);
                 } else {
-                    loadingview.setError();
+                    loadingRoundView.setError();
+
                 }
             }
         };
-
+//
         mSuccesHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -54,31 +54,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     succes += 1;
                     mSuccesHandler.sendEmptyMessageDelayed(0, 100);
                 } else {
-                    loadingview.setSuccess();
+                    loadingRoundView.setSuccess();
 
                     mErrorHandler.sendEmptyMessageDelayed(0, 1000);
                 }
             }
         };
 
-        loadingview.addViewStartLoading(loadingview, this);
         mSuccesHandler.sendEmptyMessageDelayed(0, 100);
 
-//        btn1 = (Button) findViewById(R.id.btn1);
-//        btn1.setOnClickListener(this);
-//        btn2 = (Button) findViewById(R.id.btn2);
-//        btn2.setOnClickListener(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-//            case R.id.btn1:
-//                Toast.makeText(this, "操作1", Toast.LENGTH_SHORT).show();
-//                break;
-//            case R.id.btn2:
-//                Toast.makeText(this, "操作2", Toast.LENGTH_SHORT).show();
-//                break;
-        }
-    }
 }
