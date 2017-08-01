@@ -32,13 +32,13 @@ public class LoadingView extends View {
     //屏幕的宽高
     int mwidth;
     int mheight;
-    int backgroudColor;
+    int backgroudColor=Color.BLACK;
 
     //主
     Paint mPaint;
     //属性
-    int mpaintColor;
-    float mpaintStrokeWidth;
+    int mpaintColor=Color.BLACK;
+    float mpaintStrokeWidth=16;
 
     Path mPath;
     //转圈的半径
@@ -72,9 +72,9 @@ public class LoadingView extends View {
 
     //成功失败的画笔
     Paint textPaint;
-    int textPaintColor;
-    float textPaintStrokeWidth;
-    float textPaintTextSize;
+    int textPaintColor=Color.BLACK;
+    float textPaintStrokeWidth=6;
+    float textPaintTextSize=60;
 
     //成功的动效
     ValueAnimator successvalueAnimator;
